@@ -36,6 +36,7 @@ describe('sendRcon against a fake FXServer', () => {
       if (cmd[0] === 'silent') return; // simulate a dead or firewalled server
       if (cmd[0] === 'refresh') return reply('Found 1 new resources, and refreshed 0/180 resources.\n');
       if (cmd.join(' ') === 'ensure missing') return reply("Couldn't find resource missing.\n");
+      if (cmd.join(' ') === 'ensure broken') return reply("^3Couldn't start resource broken.^7\n");
       // Long output arrives as two packets.
       reply('Stopping resource shop\n');
       setTimeout(() => reply('Started resource shop\n'), 20);
@@ -66,6 +67,13 @@ describe('sendRcon against a fake FXServer', () => {
     await assert.rejects(
       ensureResource({ host: '127.0.0.1', port, password: 'pw' }, 'missing'),
       /can't find a resource named "missing"/,
+    );
+  });
+
+  it('ensureResource reports a resource that failed to start (seen with a package.json in the resource root)', async () => {
+    await assert.rejects(
+      ensureResource({ host: '127.0.0.1', port, password: 'pw' }, 'broken'),
+      /refused to start "broken".*package\.json/s,
     );
   });
 

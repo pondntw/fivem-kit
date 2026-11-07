@@ -25,7 +25,6 @@ export const DEPENDENCIES = {
   'react-dom': '^19.3.1',
 };
 export const DEV_DEPENDENCIES = {
-  '@types/node': '^24.0.0',
   '@types/react': '^19.3.0',
   '@types/react-dom': '^19.3.0',
   '@vitejs/plugin-react': '^6.2.1',
@@ -111,8 +110,11 @@ export function scaffold(targetDir: string, opts: ScaffoldOptions): string[] {
     created.push(outRel);
   }
 
-  writeFileSync(path.join(targetDir, 'package.json'), packageJson(opts));
-  created.push('package.json');
+  // package.json lives in web/, never in the resource root: FXServer's standard yarn builder
+  // ([system]/[builders]/yarn) runs `yarn install` for any resource with a root package.json,
+  // and refuses to start the resource when that fails.
+  writeFileSync(path.join(targetDir, 'web', 'package.json'), packageJson(opts));
+  created.push('web/package.json');
 
   // Generate the bridge now so the project type-checks and runs before the first `npm run dev`.
   const { changed } = generate(loadConfig(targetDir));

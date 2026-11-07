@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { describe, it } from 'node:test';
@@ -36,13 +36,21 @@ describe('scaffold', () => {
     const { files } = make('esx', true);
     for (const f of [
       '.env.example', '.gitignore', '.vscode/settings.json', 'README.md', 'bridge.json',
-      'client/bridge.gen.lua', 'client/main.lua', 'fxmanifest.lua', 'package.json',
-      'server/main.lua', 'shared/config.lua', 'vite.config.ts', 'web/index.html',
+      'client/bridge.gen.lua', 'client/main.lua', 'fxmanifest.lua', 'web/package.json',
+      'server/main.lua', 'shared/config.lua', 'web/vite.config.ts', 'web/tsconfig.json', 'web/index.html',
       'web/src/App.tsx', 'web/src/bridge.gen.ts', 'web/src/nui.ts',
     ]) {
       assert.ok(files.includes(f), `missing ${f}`);
     }
     assert.ok(!files.some((f) => f.endsWith('.tpl') || f.includes('_gitignore')), 'template names leaked');
+  });
+
+  it('keeps package.json out of the resource root', () => {
+    // FXServer's yarn builder runs `yarn install` for any resource with a root package.json and
+    // refuses to start the resource if that fails ("Couldn't start resource").
+    const { dir, files } = make('esx', true);
+    assert.ok(!existsSync(path.join(dir, 'package.json')));
+    assert.ok(!files.some((f) => !f.includes('/') && /^(package\.json|package-lock\.json|yarn\.lock)$/.test(f)));
   });
 
   it('refuses to write into a non-empty folder', () => {
@@ -51,7 +59,7 @@ describe('scaffold', () => {
   });
 
   it('writes a package.json with the dev scripts and the fivem-kit dependency', () => {
-    const pkg = JSON.parse(make('esx', true).read('package.json'));
+    const pkg = JSON.parse(make('esx', true).read('web/package.json'));
     assert.equal(pkg.scripts.dev, 'fivem-kit dev');
     assert.equal(pkg.devDependencies['fivem-kit'], '^0.1.0');
     assert.ok(pkg.devDependencies.vite);

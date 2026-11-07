@@ -41,14 +41,26 @@ export function parseRconResponse(packet: Buffer): string {
  */
 export async function ensureResource(opts: RconOptions, resource: string, { refresh = false } = {}): Promise<string> {
   if (refresh) await sendRcon(opts, 'refresh');
-  const out = await sendRcon(opts, `ensure ${resource}`);
+  const out = stripColors(await sendRcon(opts, `ensure ${resource}`));
   if (/Couldn't find resource/i.test(out)) {
     throw new RconError(
       `FXServer can't find a resource named "${resource}". The folder name must match, and the folder must be ` +
         'inside the server\'s resources directory (not inside another resource).',
     );
   }
+  if (/Couldn't start resource/i.test(out)) {
+    throw new RconError(
+      `FXServer refused to start "${resource}" — the server console shows why. Common causes: a dependency in ` +
+        'fxmanifest.lua that is not started, or a package.json in the resource folder itself (the yarn builder ' +
+        'then tries to install it; keep package.json inside web/).',
+    );
+  }
   return out;
+}
+
+/** Removes FiveM console colour codes like ^3 and ^7. */
+export function stripColors(text: string): string {
+  return text.replace(/\^\d/g, '');
 }
 
 /**

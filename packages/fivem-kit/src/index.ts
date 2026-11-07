@@ -14,4 +14,4 @@ export {
 } from './bridge/index.ts';
 export { CONFIG_FILE, loadConfig, type KitConfig } from './config.ts';
 export { build, createRestarter, dev, isLuaChange, type DevOptions } from './dev.ts';
-export { buildRconPacket, ensureResource, parseRconResponse, RconError, sendRcon, type RconOptions } from './rcon.ts';
+export { buildRconPacket, ensureResource, parseRconResponse, RconError, sendRcon, stripColors, type RconOptions } from './rcon.ts';

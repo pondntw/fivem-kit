@@ -5,6 +5,7 @@ FiveM resource ({{framework}}) with a React + TypeScript NUI, made with [fivem-k
 ## Develop
 
 ```bash
+cd web
 npm install
 npm run dev       # rebuild on save + restart the resource in-game over RCON
 npm run dev:ui    # UI only, in your browser with mock data (instant hot reload)
@@ -19,6 +20,10 @@ set rcon_password "use-a-long-random-password"
 
 Then type `/{{command}}` in game.
 
+The Node project (package.json, node_modules, Vite) lives in `web/` on purpose: FXServer's built-in
+yarn builder tries to `yarn install` any resource that has a package.json in its root, and won't start
+the resource if that fails.
+
 ## Lua ↔ UI messages
 
 Every message is declared once in [`bridge.json`](bridge.json). `fivem-kit` generates:
@@ -31,6 +36,7 @@ Rename a field in `bridge.json` and TypeScript shows you every place in the UI t
 ## Ship
 
 ```bash
+cd web
 npm run build
 ```
 

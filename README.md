@@ -36,7 +36,9 @@ my-shop/
 │  └─ bridge.gen.lua      ← generated: Ui.* and Nui.* with LuaLS types
 ├─ server/main.lua        ← example purchase, validated on the server (NaN-safe amounts)
 ├─ shared/config.lua
-└─ web/                   ← Vite + React + TypeScript
+└─ web/                   ← Vite + React + TypeScript (package.json and node_modules live here)
+   ├─ package.json
+   ├─ vite.config.ts
    └─ src/
       ├─ App.tsx
       ├─ nui.ts           ← fetchNui / useNuiEvent, typed from the bridge
@@ -85,7 +87,7 @@ Field types: `string`, `number`, `boolean`, `any`; add `[]` for arrays and `?` f
 
 ## Commands
 
-Inside a generated project:
+Inside a generated project's `web/` folder:
 
 | Command | |
 |---|---|
@@ -98,9 +100,13 @@ Inside a generated project:
 
 1. In `server.cfg` (or your startup script): `set rcon_password "<long random password>"`. It is read-only once the server runs, so typing it in the console does not work. RCON listens on the game port, so on a server reachable from the internet use a long random password
 2. In the resource folder: copy `.env.example` to `.env` and set `FIVEM_RCON_PASSWORD` to the same value
-3. `npm run dev`
+3. `cd web` and `npm run dev`
 
 When you save several files at once, fivem-kit waits until the saves stop, then sends a single restart. The resource restarts, so its Lua state resets. Without a password, `npm run dev` still rebuilds and tells you to restart the resource yourself.
+
+## Why package.json is inside web/
+
+FXServer ships a yarn builder (`[system]/[builders]/yarn`) that runs `yarn install` for every resource with a `package.json` in its root, and refuses to start the resource when that fails. Keeping the Node project in `web/` means the server never touches it. `fivem-kit` finds the resource root by walking up to `fxmanifest.lua`, so commands work from `web/`.
 
 ## How it works
 

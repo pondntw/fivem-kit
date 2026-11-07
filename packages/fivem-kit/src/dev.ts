@@ -51,12 +51,12 @@ export function createRestarter(opts: { delayMs: number; run: (reasons: string[]
 const VITE_CONFIGS = ['vite.config.ts', 'vite.config.mts', 'vite.config.js', 'vite.config.mjs'];
 
 /**
- * Point Vite at the project's config file explicitly. We must not pass `root` when a config exists:
- * inline options override the file, and the template's config sets root to "web".
+ * Vite runs in the web/ folder. Both the config file and root are passed explicitly, so the build
+ * works no matter which folder `fivem-kit` was started from.
  */
-function viteBase(root: string): Record<string, unknown> {
-  const configFile = VITE_CONFIGS.map((f) => path.join(root, f)).find((f) => existsSync(f));
-  return configFile ? { configFile } : { root };
+function viteBase(webDir: string): Record<string, unknown> {
+  const configFile = VITE_CONFIGS.map((f) => path.join(webDir, f)).find((f) => existsSync(f));
+  return configFile ? { configFile, root: webDir } : { root: webDir };
 }
 
 /** True for files whose change means the resource must be restarted. */
@@ -145,9 +145,9 @@ export async function dev(config: KitConfig, opts: DevOptions = {}): Promise<{ c
 
   // 3) UI: Vite rebuilds web/dist on every save; a finished build restarts the resource so the
   //    NUI page reloads in-game.
-  const vite = await loadVite(config.root);
+  const vite = await loadVite(config.webDir);
   const viteWatcher = (await vite.build({
-    ...viteBase(config.root),
+    ...viteBase(config.webDir),
     mode: 'development',
     logLevel: 'warn',
     build: { watch: {}, sourcemap: 'inline', minify: false },
@@ -180,6 +180,6 @@ export async function dev(config: KitConfig, opts: DevOptions = {}): Promise<{ c
 /** One-off production build: regenerate the bridge, then `vite build`. */
 export async function build(config: KitConfig): Promise<void> {
   generate(config);
-  const vite = await loadVite(config.root);
-  await vite.build({ ...viteBase(config.root), mode: 'production', logLevel: 'info' });
+  const vite = await loadVite(config.webDir);
+  await vite.build({ ...viteBase(config.webDir), mode: 'production', logLevel: 'info' });
 }

@@ -123,6 +123,16 @@ describe('generate (files)', () => {
     assert.deepEqual(generate(config, { check: true }).changed, []);
   });
 
+  it('finds the resource root (fxmanifest.lua) when run from web/', () => {
+    const root = path.join(mkdtempSync(path.join(tmpdir(), 'fivem-kit-root-')), 'my_res');
+    mkdirSync(path.join(root, 'web', 'src'), { recursive: true });
+    writeFileSync(path.join(root, 'fxmanifest.lua'), "fx_version 'cerulean'\n");
+    const config = loadConfig(path.join(root, 'web'));
+    assert.equal(config.root, root);
+    assert.equal(config.webDir, path.join(root, 'web'));
+    assert.equal(config.resource, 'my_res');
+  });
+
   it('respects custom output paths from fivem-kit.config.json', () => {
     const root = mkdtempSync(path.join(tmpdir(), 'fivem-kit-cfg-'));
     mkdirSync(path.join(root, 'ui'));

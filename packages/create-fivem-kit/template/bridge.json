@@ -1,5 +1,5 @@
 {
-  "$schema": "./node_modules/fivem-kit/bridge.schema.json",
+  "$schema": "./web/node_modules/fivem-kit/bridge.schema.json",
   "toUi": {
     "setVisible": { "visible": "boolean" },
     "setShop": {

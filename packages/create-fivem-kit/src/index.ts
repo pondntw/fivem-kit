@@ -121,10 +121,11 @@ async function main(): Promise<number> {
     if (!values['no-install']) {
       console.log(styleText('dim', `\n  ${pm} install...\n`));
       // On Windows npm is a .cmd shim, which needs a shell; pass one string so Node doesn't warn (DEP0190).
+      const webDir = path.join(dir, 'web');
       const r = process.platform === 'win32'
-        ? spawnSync(`${pm} install`, { cwd: dir, stdio: 'inherit', shell: true })
-        : spawnSync(pm, ['install'], { cwd: dir, stdio: 'inherit' });
-      if (r.status !== 0) console.log(styleText('yellow', `\n  ${pm} install failed — run it yourself inside ${name}/`));
+        ? spawnSync(`${pm} install`, { cwd: webDir, stdio: 'inherit', shell: true })
+        : spawnSync(pm, ['install'], { cwd: webDir, stdio: 'inherit' });
+      if (r.status !== 0) console.log(styleText('yellow', `\n  ${pm} install failed — run it yourself inside ${name}/web/`));
     }
 
     const rel = path.relative(process.cwd(), dir) || '.';
@@ -133,7 +134,7 @@ ${styleText('bold', 'Next steps')}
   1. Put ${styleText('cyan', rel)} inside your server's resources folder (or create it there)
   2. Hot reload in-game: copy .env.example to .env, set FIVEM_RCON_PASSWORD,
      and add ${styleText('cyan', 'set rcon_password "<same password>"')} to server.cfg (restart the server after)
-  3. ${styleText('cyan', `cd ${rel}`)} and ${styleText('cyan', `${pm} run dev`)}
+  3. ${styleText('cyan', `cd ${path.join(rel, 'web')}`)} and ${styleText('cyan', `${pm} run dev`)}
   4. In game: ${styleText('cyan', `/${name.toLowerCase().replace(/[^a-z0-9]/g, '')}`)}
 
   UI only, in the browser with mock data: ${styleText('cyan', `${pm} run dev:ui`)}

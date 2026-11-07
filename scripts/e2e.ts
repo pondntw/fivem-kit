@@ -19,6 +19,7 @@ const repo = fileURLToPath(new URL('..', import.meta.url));
 const work = path.join(repo, '.tmp', 'e2e');
 const name = 'e2e_shop';
 const project = path.join(work, name);
+const web = path.join(project, 'web');
 const isWin = process.platform === 'win32';
 
 function step(msg: string) {
@@ -45,12 +46,13 @@ run(
 assert.ok(existsSync(path.join(project, 'fxmanifest.lua')), 'scaffold did not create the project');
 
 step('npm install');
-run('npm', ['install', '--no-audit', '--no-fund'], project);
+assert.ok(!existsSync(path.join(project, 'package.json')), 'package.json must not be in the resource root (yarn builder)');
+run('npm', ['install', '--no-audit', '--no-fund'], web);
 
 step('typecheck + gen --check + build');
-run('npm', ['run', 'typecheck'], project);
-run('npx', ['fivem-kit', 'gen', '--check'], project);
-run('npm', ['run', 'build'], project);
+run('npm', ['run', 'typecheck'], web);
+run('npx', ['fivem-kit', 'gen', '--check'], web);
+run('npm', ['run', 'build'], web);
 const html = readFileSync(path.join(project, 'web/dist/index.html'), 'utf8');
 assert.match(html, /src="\.\/assets\/[^"]+\.js"/, 'built index.html must use relative asset paths for NUI');
 assert.doesNotMatch(html, /src="\/assets/, 'absolute asset paths break in NUI');
@@ -67,7 +69,7 @@ const port = server.address().port;
 writeFileSync(path.join(project, '.env'), `FIVEM_RCON_PASSWORD=e2e-pass\nFIVEM_RCON_PORT=${port}\n`);
 
 const kitCli = path.join(repo, 'packages/fivem-kit/dist/cli.js');
-const dev: ChildProcess = spawn(process.execPath, [kitCli, 'dev'], { cwd: project, stdio: ['ignore', 'pipe', 'pipe'] });
+const dev: ChildProcess = spawn(process.execPath, [kitCli, 'dev'], { cwd: web, stdio: ['ignore', 'pipe', 'pipe'] });
 let devOutput = '';
 dev.stdout!.on('data', (d) => (devOutput += d));
 dev.stderr!.on('data', (d) => (devOutput += d));
