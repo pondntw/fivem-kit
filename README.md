@@ -1,5 +1,8 @@
 # fivem-kit
 
+[![CI](https://github.com/pondntw/fivem-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/pondntw/fivem-kit/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 **Build FiveM NUI with React + TypeScript, with types that reach all the way into your Lua, and changes that show up in-game when you save.**
 
 ```bash
