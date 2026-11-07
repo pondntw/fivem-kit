@@ -6,7 +6,7 @@ import { BridgeError } from './bridge/schema.ts';
 import { loadConfig } from './config.ts';
 import { build, dev } from './dev.ts';
 import { log } from './log.ts';
-import { sendRcon } from './rcon.ts';
+import { ensureResource } from './rcon.ts';
 
 const HELP = `fivem-kit — type-safe NUI bridge and hot reload for FiveM resources
 
@@ -22,7 +22,8 @@ Options
   -h, --help      Show this help
   -v, --version   Show version
 
-RCON (for hot reload): set FIVEM_RCON_PASSWORD in .env, and rcon_password in server.cfg.
+RCON (for hot reload): set FIVEM_RCON_PASSWORD in .env, and set rcon_password "..." in server.cfg
+(it is read-only once the server runs, so it cannot be set from the console).
 Docs: https://github.com/pondntw/fivem-kit`;
 
 function version(): string {
@@ -86,9 +87,10 @@ async function main(argv: string[]): Promise<number> {
         log.error('FIVEM_RCON_PASSWORD is not set (put it in .env)');
         return 1;
       }
-      const out = await sendRcon(
+      const out = await ensureResource(
         { host: config.rcon.host, port: config.rcon.port, password: config.rcon.password },
-        `ensure ${config.resource}`,
+        config.resource,
+        { refresh: true },
       );
       log.ok(`ensure ${config.resource}${out.trim() ? ` — ${out.trim()}` : ''}`);
       return 0;

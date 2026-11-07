@@ -36,6 +36,22 @@ export function parseRconResponse(packet: Buffer): string {
 }
 
 /**
+ * Starts or restarts a resource. With refresh: true, first rescans the resources folder:
+ * FXServer does not know about a folder created after it booted until `refresh` runs.
+ */
+export async function ensureResource(opts: RconOptions, resource: string, { refresh = false } = {}): Promise<string> {
+  if (refresh) await sendRcon(opts, 'refresh');
+  const out = await sendRcon(opts, `ensure ${resource}`);
+  if (/Couldn't find resource/i.test(out)) {
+    throw new RconError(
+      `FXServer can't find a resource named "${resource}". The folder name must match, and the folder must be ` +
+        'inside the server\'s resources directory (not inside another resource).',
+    );
+  }
+  return out;
+}
+
+/**
  * Sends one command and resolves with the server's output.
  * FXServer may split long output across packets, so we keep reading until the socket is quiet.
  */

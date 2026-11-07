@@ -4,7 +4,7 @@ import { generate } from './bridge/index.ts';
 import { BridgeError } from './bridge/schema.ts';
 import type { KitConfig } from './config.ts';
 import { log } from './log.ts';
-import { sendRcon } from './rcon.ts';
+import { ensureResource } from './rcon.ts';
 import { loadVite, type RollupWatcher } from './vite.ts';
 
 /**
@@ -88,9 +88,11 @@ export async function dev(config: KitConfig, opts: DevOptions = {}): Promise<{ c
 
   if (wantRestart && !rconPassword) {
     log.warn('FIVEM_RCON_PASSWORD is not set, so changes will build but not restart the resource.');
-    log.warn('Add it to .env (and `rcon_password "..."` to server.cfg) to enable in-game hot reload.');
+    log.warn('Add it to .env, and `set rcon_password "..."` to server.cfg (it cannot be set from the console), to enable in-game hot reload.');
   }
 
+  // The first restart also runs `refresh`, so a resource created after the server booted is found.
+  let refreshed = false;
   const restarter = createRestarter({
     delayMs: 300,
     run: async (reasons) => {
@@ -99,10 +101,12 @@ export async function dev(config: KitConfig, opts: DevOptions = {}): Promise<{ c
         return;
       }
       try {
-        const out = await sendRcon(
+        const out = await ensureResource(
           { host: config.rcon.host, port: config.rcon.port, password: rconPassword },
-          `ensure ${config.resource}`,
+          config.resource,
+          { refresh: !refreshed },
         );
+        refreshed = true;
         const detail = out.trim().split('\n').filter(Boolean).pop();
         log.ok(`restarted ${config.resource} (${reasons.join(', ')})${detail ? ` — ${detail}` : ''}`);
       } catch (err) {

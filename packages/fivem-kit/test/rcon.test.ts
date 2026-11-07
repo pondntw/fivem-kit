@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { createSocket, type Socket } from 'node:dgram';
 import { after, before, describe, it } from 'node:test';
-import { buildRconPacket, parseRconResponse, RconError, sendRcon } from '../src/rcon.ts';
+import { buildRconPacket, ensureResource, parseRconResponse, RconError, sendRcon } from '../src/rcon.ts';
 
 const FF = Buffer.from([0xff, 0xff, 0xff, 0xff]);
 
@@ -34,6 +34,8 @@ describe('sendRcon against a fake FXServer', () => {
       const reply = (s: string) => server.send(Buffer.concat([FF, Buffer.from(`print ${s}`)]), rinfo.port, rinfo.address);
       if (password !== 'pw') return reply('Invalid password.\n');
       if (cmd[0] === 'silent') return; // simulate a dead or firewalled server
+      if (cmd[0] === 'refresh') return reply('Found 1 new resources, and refreshed 0/180 resources.\n');
+      if (cmd.join(' ') === 'ensure missing') return reply("Couldn't find resource missing.\n");
       // Long output arrives as two packets.
       reply('Stopping resource shop\n');
       setTimeout(() => reply('Started resource shop\n'), 20);
@@ -52,6 +54,19 @@ describe('sendRcon against a fake FXServer', () => {
 
   it('rejects a wrong password with a clear error', async () => {
     await assert.rejects(sendRcon({ host: '127.0.0.1', port, password: 'nope' }, 'status'), /rejected the RCON password/);
+  });
+
+  it('ensureResource refreshes first when asked', async () => {
+    const start = received.length;
+    await ensureResource({ host: '127.0.0.1', port, password: 'pw' }, 'shop', { refresh: true });
+    assert.deepEqual(received.slice(start), ['rcon pw refresh', 'rcon pw ensure shop']);
+  });
+
+  it('ensureResource explains a missing resource instead of reporting success', async () => {
+    await assert.rejects(
+      ensureResource({ host: '127.0.0.1', port, password: 'pw' }, 'missing'),
+      /can't find a resource named "missing"/,
+    );
   });
 
   it('times out when the server never answers', async () => {

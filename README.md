@@ -96,7 +96,7 @@ Inside a generated project:
 
 ### Hot reload setup
 
-1. In `server.cfg`: `rcon_password "pick-a-password"`
+1. In `server.cfg` (or your startup script): `set rcon_password "<long random password>"`. It is read-only once the server runs, so typing it in the console does not work. RCON listens on the game port, so on a server reachable from the internet use a long random password
 2. In the resource folder: copy `.env.example` to `.env` and set `FIVEM_RCON_PASSWORD` to the same value
 3. `npm run dev`
 

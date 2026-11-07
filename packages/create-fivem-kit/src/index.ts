@@ -129,7 +129,7 @@ async function main(): Promise<number> {
 ${styleText('bold', 'Next steps')}
   1. Put ${styleText('cyan', rel)} inside your server's resources folder (or create it there)
   2. Hot reload in-game: copy .env.example to .env, set FIVEM_RCON_PASSWORD,
-     and add ${styleText('cyan', 'rcon_password "<same password>"')} to server.cfg
+     and add ${styleText('cyan', 'set rcon_password "<same password>"')} to server.cfg (restart the server after)
   3. ${styleText('cyan', `cd ${rel}`)} and ${styleText('cyan', `${pm} run dev`)}
   4. In game: ${styleText('cyan', `/${name.toLowerCase().replace(/[^a-z0-9]/g, '')}`)}
 

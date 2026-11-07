@@ -11,10 +11,10 @@ npm run dev:ui    # UI only, in your browser with mock data (instant hot reload)
 ```
 
 Hot reload in-game needs RCON: copy `.env.example` to `.env`, set `FIVEM_RCON_PASSWORD`,
-and put the same password in `server.cfg`:
+and put the same password in `server.cfg` (it cannot be set from the console once the server runs):
 
 ```cfg
-rcon_password "change-me"
+set rcon_password "use-a-long-random-password"
 ```
 
 Then type `/{{command}}` in game.
