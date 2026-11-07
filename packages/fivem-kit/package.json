@@ -1,0 +1,38 @@
+{
+  "name": "fivem-kit",
+  "version": "0.1.0",
+  "description": "Type-safe Lua <-> React NUI bridge and in-game hot reload for FiveM resources",
+  "keywords": ["fivem", "nui", "lua", "react", "vite", "esx", "qbcore", "cfx"],
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "fivem-kit": "dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./bridge.schema.json": "./bridge.schema.json"
+  },
+  "files": ["dist", "bridge.schema.json"],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "node --test \"test/**/*.test.ts\""
+  },
+  "peerDependencies": {
+    "vite": ">=6"
+  },
+  "peerDependenciesMeta": {
+    "vite": { "optional": true }
+  },
+  "engines": {
+    "node": ">=20.12"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pondntw/fivem-kit.git",
+    "directory": "packages/fivem-kit"
+  }
+}

@@ -1,0 +1,63 @@
+import assert from 'node:assert/strict';
+import { createSocket, type Socket } from 'node:dgram';
+import { after, before, describe, it } from 'node:test';
+import { buildRconPacket, parseRconResponse, RconError, sendRcon } from '../src/rcon.ts';
+
+const FF = Buffer.from([0xff, 0xff, 0xff, 0xff]);
+
+describe('rcon packets', () => {
+  it('builds a Quake-style rcon packet', () => {
+    assert.deepEqual(buildRconPacket('secret', 'ensure shop'), Buffer.concat([FF, Buffer.from('rcon secret ensure shop')]));
+  });
+
+  it('quotes passwords that contain spaces and refuses quotes', () => {
+    assert.match(buildRconPacket('two words', 'status').toString('utf8'), /rcon "two words" status$/);
+    assert.throws(() => buildRconPacket('a"b', 'status'), RconError);
+  });
+
+  it('strips the header and print prefix from responses', () => {
+    assert.equal(parseRconResponse(Buffer.concat([FF, Buffer.from('print Started resource shop\n')])), 'Started resource shop\n');
+  });
+});
+
+describe('sendRcon against a fake FXServer', () => {
+  let server: Socket;
+  let port = 0;
+  const received: string[] = [];
+
+  before(async () => {
+    server = createSocket('udp4');
+    server.on('message', (msg, rinfo) => {
+      const text = msg.subarray(4).toString('utf8');
+      received.push(text);
+      const [, password, ...cmd] = text.split(' ');
+      const reply = (s: string) => server.send(Buffer.concat([FF, Buffer.from(`print ${s}`)]), rinfo.port, rinfo.address);
+      if (password !== 'pw') return reply('Invalid password.\n');
+      if (cmd[0] === 'silent') return; // simulate a dead or firewalled server
+      // Long output arrives as two packets.
+      reply('Stopping resource shop\n');
+      setTimeout(() => reply('Started resource shop\n'), 20);
+    });
+    await new Promise<void>((resolve) => server.bind(0, '127.0.0.1', resolve));
+    port = server.address().port;
+  });
+
+  after(() => server.close());
+
+  it('sends the command and joins multi-packet output', async () => {
+    const out = await sendRcon({ host: '127.0.0.1', port, password: 'pw' }, 'ensure shop');
+    assert.equal(out, 'Stopping resource shop\nStarted resource shop\n');
+    assert.equal(received.at(-1), 'rcon pw ensure shop');
+  });
+
+  it('rejects a wrong password with a clear error', async () => {
+    await assert.rejects(sendRcon({ host: '127.0.0.1', port, password: 'nope' }, 'status'), /rejected the RCON password/);
+  });
+
+  it('times out when the server never answers', async () => {
+    await assert.rejects(
+      sendRcon({ host: '127.0.0.1', port, password: 'pw', timeoutMs: 200 }, 'silent'),
+      /No answer from 127\.0\.0\.1/,
+    );
+  });
+});

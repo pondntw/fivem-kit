@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "fivem-kit bridge",
+  "description": "Messages between Lua (client) and the NUI page. Field types: string, number, boolean, any — add [] for arrays and ? for optional. Use an object for nested data and [ {...} ] for an array of objects.",
+  "type": "object",
+  "additionalProperties": false,
+  "patternProperties": { "^\\$": {} },
+  "properties": {
+    "toUi": {
+      "description": "Lua -> UI. Send with Ui.<name>(data), receive with useNuiEvent('<name>', ...).",
+      "type": "object",
+      "patternProperties": { "^[A-Za-z_][A-Za-z0-9_]*$": { "$ref": "#/definitions/fields" } },
+      "additionalProperties": false
+    },
+    "toClient": {
+      "description": "UI -> Lua. Call with fetchNui('<name>', request), answer with Nui.<name>(function(data) return response end).",
+      "type": "object",
+      "patternProperties": {
+        "^[A-Za-z_][A-Za-z0-9_]*$": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "request": { "$ref": "#/definitions/fields" },
+            "response": { "$ref": "#/definitions/fields" }
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "definitions": {
+    "type": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^(string|number|boolean|any)(\\[\\])*\\??$",
+          "examples": ["string", "number", "boolean", "any", "string[]", "number?"]
+        },
+        { "$ref": "#/definitions/fields" },
+        { "type": "array", "minItems": 1, "maxItems": 1, "items": { "$ref": "#/definitions/type" } }
+      ]
+    },
+    "fields": {
+      "type": "object",
+      "patternProperties": { "^[A-Za-z_][A-Za-z0-9_]*\\??$": { "$ref": "#/definitions/type" } },
+      "additionalProperties": false
+    }
+  }
+}
