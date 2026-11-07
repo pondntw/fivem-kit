@@ -13,7 +13,7 @@ npm create fivem-kit@latest my-shop
   <img src="docs/example-shop.jpg" alt="The example shop UI that create-fivem-kit generates" width="480" />
 </p>
 
-> **Status: 0.1 (alpha).** The generator, bridge and hot reload are tested end to end against a simulated FXServer. Please [open an issue](https://github.com/pondntw/fivem-kit/issues) if something behaves differently on your server.
+> **Status: 0.1 (alpha).** Tested end to end against a simulated FXServer in CI, and by hand on a real ESX Legacy + ox_lib server (FXServer artifact 38182): opening the UI, buying with server-side checks, errors from Lua reaching the UI, and hot reload for Lua, config and UI changes. Please [open an issue](https://github.com/pondntw/fivem-kit/issues) if something behaves differently on your server.
 
 ## Why
 
