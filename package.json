@@ -1,0 +1,22 @@
+{
+  "name": "fivem-kit-monorepo",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/fivem-kit",
+    "packages/create-fivem-kit"
+  ],
+  "scripts": {
+    "build": "npm run build -w fivem-kit -w create-fivem-kit",
+    "test": "npm run build -w fivem-kit && npm test -w fivem-kit -w create-fivem-kit",
+    "typecheck": "npm run build -w fivem-kit && npm run typecheck -w fivem-kit -w create-fivem-kit",
+    "e2e": "node scripts/e2e.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=22.18"
+  }
+}
