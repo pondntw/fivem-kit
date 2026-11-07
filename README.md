@@ -42,7 +42,7 @@ my-shop/
    └─ src/
       ├─ App.tsx
       ├─ nui.ts           ← fetchNui / useNuiEvent, typed from the bridge
-      ├─ dev.ts           ← mock Lua for browser development
+      ├─ browser-mock.ts  ← fake Lua for `npm run dev:ui` (not used in-game)
       └─ bridge.gen.ts    ← generated
 ```
 

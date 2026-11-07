@@ -1,5 +1,6 @@
-// Loaded only in the browser (`npm run dev:ui`), never in-game.
+// BROWSER ONLY (`npm run dev:ui`). This file is never used in-game.
 // It plays the part of Lua so you can build the UI with Vite's instant hot reload.
+// In-game, the data comes from Lua: e.g. the shop title is Config.ShopTitle in shared/config.lua.
 import { mockNui, sendDebug } from './nui';
 
 let cash = 120;

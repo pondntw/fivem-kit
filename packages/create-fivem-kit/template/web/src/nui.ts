@@ -22,7 +22,7 @@ type Mocks = { [K in keyof NuiCallbacks]?: (data: Request<K>) => Response<K> | P
 
 const mocks: Mocks = {};
 
-/** Browser only: fake Lua's answers so the UI works without the game. See dev.ts. */
+/** Browser only: fake Lua's answers so the UI works without the game. See browser-mock.ts. */
 export function mockNui(handlers: Mocks): void {
   Object.assign(mocks, handlers);
 }
@@ -34,7 +34,7 @@ export function mockNui(handlers: Mocks): void {
 export async function fetchNui<K extends keyof NuiCallbacks>(name: K, data: Request<K>): Promise<Response<K>> {
   if (isBrowser) {
     const mock = mocks[name] as ((d: Request<K>) => Response<K> | Promise<Response<K>>) | undefined;
-    if (!mock) throw new NuiError(name, 'no mock registered (add one in dev.ts)');
+    if (!mock) throw new NuiError(name, 'no mock registered (add one in browser-mock.ts)');
     return mock(data);
   }
   const res = await fetch(`https://${resourceName}/${name}`, {
