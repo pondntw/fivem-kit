@@ -1,0 +1,28 @@
+{
+  "name": "create-fivem-kit",
+  "version": "0.1.0",
+  "description": "Scaffold a FiveM resource with a React + TypeScript NUI, a type-safe Lua bridge and in-game hot reload",
+  "keywords": ["fivem", "nui", "lua", "react", "vite", "esx", "qbcore", "create", "scaffold"],
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "create-fivem-kit": "dist/index.js"
+  },
+  "files": ["dist", "template"],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "node --test \"test/**/*.test.ts\""
+  },
+  "dependencies": {
+    "fivem-kit": "^0.1.0"
+  },
+  "engines": {
+    "node": ">=20.12"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pondntw/fivem-kit.git",
+    "directory": "packages/create-fivem-kit"
+  }
+}

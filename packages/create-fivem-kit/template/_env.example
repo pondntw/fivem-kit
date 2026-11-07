@@ -1,0 +1,6 @@
+# Copy to .env (never commit .env).
+# Must match `rcon_password "..."` in your server.cfg — used by `npm run dev` to restart this resource.
+FIVEM_RCON_PASSWORD=
+# Defaults: 127.0.0.1 and 30120
+# FIVEM_RCON_HOST=127.0.0.1
+# FIVEM_RCON_PORT=30120

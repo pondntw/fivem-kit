@@ -1,0 +1,18 @@
+{
+  "$schema": "./node_modules/fivem-kit/bridge.schema.json",
+  "toUi": {
+    "setVisible": { "visible": "boolean" },
+    "setShop": {
+      "title": "string",
+      "items": [{ "name": "string", "label": "string", "price": "number" }]
+    },
+    "setPlayer": { "name": "string", "cash": "number" }
+  },
+  "toClient": {
+    "close": {},
+    "buy": {
+      "request": { "item": "string", "amount": "number" },
+      "response": { "ok": "boolean", "message": "string?" }
+    }
+  }
+}
