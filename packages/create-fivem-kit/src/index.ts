@@ -120,7 +120,10 @@ async function main(): Promise<number> {
     const pm = packageManager();
     if (!values['no-install']) {
       console.log(styleText('dim', `\n  ${pm} install...\n`));
-      const r = spawnSync(pm, ['install'], { cwd: dir, stdio: 'inherit', shell: process.platform === 'win32' });
+      // On Windows npm is a .cmd shim, which needs a shell; pass one string so Node doesn't warn (DEP0190).
+      const r = process.platform === 'win32'
+        ? spawnSync(`${pm} install`, { cwd: dir, stdio: 'inherit', shell: true })
+        : spawnSync(pm, ['install'], { cwd: dir, stdio: 'inherit' });
       if (r.status !== 0) console.log(styleText('yellow', `\n  ${pm} install failed — run it yourself inside ${name}/`));
     }
 
